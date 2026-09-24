@@ -14,7 +14,7 @@ const expected = args.includes( '--expect=fixed' ) ? 'fixed' : 'affected';
 const server = createServer( { root } );
 server.listen( serve ? Number( process.env.PORT || 8092 ) : 0, '127.0.0.1' );
 await once( server, 'listening' );
-const url = `http://127.0.0.1:${ server.address().port }/test/repro/shadow-pipeline/`;
+const url = process.env.SHADOW_REPRO_URL || `http://127.0.0.1:${ server.address().port }/test/repro/shadow-pipeline/`;
 
 if ( serve ) {
 
@@ -36,13 +36,24 @@ if ( serve ) {
 		const page = await browser.newPage();
 		const errors = [];
 		page.on( 'pageerror', error => errors.push( error.message ) );
+		page.on( 'requestfailed', request => errors.push( `${ request.url() }: ${ request.failure()?.errorText }` ) );
 		page.on( 'console', message => {
 
 			if ( message.type() === 'error' ) errors.push( message.text() );
 
 		} );
 		await page.goto( `${ url }?autorun=0&renderer=${ expected === 'fixed' ? 'patched' : 'stock' }`, { waitUntil: 'networkidle0' } );
-		await page.waitForFunction( () => window.shadowRepro !== undefined );
+		try {
+
+			await page.waitForFunction( () => window.shadowRepro !== undefined, { timeout: 60000 } );
+
+		} catch ( error ) {
+
+			console.log( JSON.stringify( { errors, url: page.url(), body: await page.evaluate( () => document.body.innerText ) }, null, 2 ) );
+			throw error;
+
+		}
+
 		const output = path.join( root, 'test/e2e/output-screenshots/shadow-pipeline' );
 		await mkdir( output, { recursive: true } );
 		const results = [];

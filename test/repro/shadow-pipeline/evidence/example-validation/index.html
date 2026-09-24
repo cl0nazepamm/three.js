@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three.js shadow fix — real example validation</title>
+<link rel="icon" href="data:,">
+<style>
+body{margin:0;background:#111923;color:#e8edf4;font:15px/1.6 system-ui,sans-serif}main{max-width:1400px;margin:auto;padding:30px}h1{font-size:28px;margin:0}p{max-width:950px;color:#b1c3d3}a{color:#86c7ef}button{font:inherit;background:#263a4e;color:#fff;border:1px solid #536a80;border-radius:6px;padding:8px 14px;cursor:pointer}button[aria-pressed=true]{background:#235f51;border-color:#73dbba}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:25px}article{background:#172330;border-radius:10px;overflow:hidden}article img{display:block;width:100%}article h2{font-size:17px;margin:12px 16px 0}article p{margin:4px 16px 16px;font-size:13px}.pass{color:#73dbba}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+</style>
+<main>
+<h1>Shadow fix: real example validation</h1>
+<p class="pass">Six upstream examples passed. Zero changed pixels and zero browser or GPU errors.</p>
+<p>Upstream <code>1c4264a639</code>, Edge WebGPU, 960 × 600. Each version ran 24 warm-up frames and 120 measured frames with matching random seeds and animation time. Scenes, materials, lights and assets are the original upstream examples.</p>
+<p>Both versions were already free of pipeline churn in these examples. These results check compatibility; the <a href="../../index.html">mixed-material reproduction</a> demonstrates the fix. Screenshot FPS displays use controlled time and are not performance benchmarks.</p>
+<p>Tested fix: <code>aa621821a4</code> (four added lines). The 14 fixture comparisons per backend are pixel-identical and verify explicit pass IDs, runtime side changes, precompilation and disposal. <a href="../regression/results.json">WebGPU fixture results</a> · <a href="../regression-webgl/results.json">WebGL2 fixture results</a> · <a href="../../regression.js">Test source</a>.</p>
+<p>The four-line lookup-table revision was also checked with WebGL2 forced: all six examples render without errors. Five comparisons are exact; the standard shadow-map example varied by one color value in three pixels. A repeated capture of the unchanged patched build also varied by one pixel. <a href="../example-validation-webgl/results.json">WebGL2 report</a> · <a href="../example-validation-webgl-repeat/results.json">Repeat controls</a>.</p>
+<p><a href="../example-validation-webgl/color-difference.html">Inspect the WebGL2 color difference · magnified pixels and repeat controls</a></p>
+<button id="stock" aria-pressed="false">Stock screenshots</button>
+<button id="patched" aria-pressed="true">Patched screenshots</button>
+<div class="grid" id="examples"></div>
+<p><a href="results.json">Full WebGPU measurement report</a> · <a href="../../validate-examples.js">Example validation source</a>. These are saved captures of the tested stock and patched builds.</p>
+</main>
+<script>
+const examples=[['webgpu_shadowmap','Directional + spot shadows'],['webgpu_shadowmap_vsm','VSM shadows'],['webgpu_shadowmap_pointlight','Point-light shadows'],['webgpu_shadowmap_opacity','Opacity and colored shadows'],['webgpu_shadowmap_csm','Cascaded shadow maps'],['webgpu_shadowmap_array','Shadow-map arrays']];
+const grid=document.getElementById('examples');
+for(const [file,title] of examples){const card=document.createElement('article');card.innerHTML=`<img src="${file}-patched.png" alt="${title}" data-example="${file}"><h2>${title}</h2><p><span class="pass">0 changed pixels · 0 errors</span></p>`;grid.append(card);}
+for(const mode of ['stock','patched'])document.getElementById(mode).onclick=()=>{for(const img of grid.querySelectorAll('img'))img.src=`${img.dataset.example}-${mode}.png`;for(const button of document.querySelectorAll('button'))button.setAttribute('aria-pressed',String(button.id===mode));};
+</script>
+</html>

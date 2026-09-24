@@ -32,7 +32,7 @@ node test/repro/shadow-pipeline/run.js --serve
 Open <http://127.0.0.1:8092/test/repro/shadow-pipeline/> in a WebGPU-capable browser.
 The local comparison page has a **Patch** dropdown above the cases.
 **Stock upstream** (default) imports the preserved `Renderer.stock.js` module;
-**Patched (+3 lines)** imports the edited `Renderer.js`. Switching reloads the
+**Patched (+4 lines)** imports the edited `Renderer.js`. Switching reloads the
 page, keeping every other source module identical. No build or max.js assets
 are needed. Set `PORT` to change the port.
 
@@ -103,3 +103,42 @@ open PR #34104 at `e0c20484c4cde3d13109413c7b6104388c07f8fd`. Both still
 reproduce the same 240/120-frame churn and pass all seven affected-mode checks,
 including pixel equality. Their reports are saved beside the original evidence
 as `upstream-dev-results.json` and `pr-34104-results.json`.
+
+## Lookup-table revision and expanded validation
+
+The current comparison contains the exact renderer change from fix commit
+`aa621821a4d9d6d9e195494efdb2651124488ceb`, based on upstream `1c4264a639`.
+The upstream PR branch contains only four added lines in `Renderer.js`.
+This separate preview branch carries the reproduction and validation artifacts.
+
+- [Validation gallery](./evidence/example-validation/index.html): six existing
+  upstream examples, stock/patched WebGPU captures and raw reports.
+- [WebGL2 color comparison](./evidence/example-validation-webgl/color-difference.html):
+  exact PNG values, enlarged crops and repeat controls.
+- [WebGPU fixture results](./evidence/regression/results.json) and
+  [WebGL2 fixture results](./evidence/regression-webgl/results.json): 14 cases
+  per backend, pixel-identical images and complete cache cleanup.
+
+The same-side mixed-transparency case remains unchanged: two new WebGPU shadow
+pipelines per frame in both stock and patch. Explicit caller pass IDs are preserved.
+
+Additional runners (after installing this repository's dependencies):
+
+```powershell
+node test/repro/shadow-pipeline/regression.js
+node test/repro/shadow-pipeline/regression.js --webgl
+node test/repro/shadow-pipeline/validate-examples.js
+node test/repro/shadow-pipeline/validate-examples.js --webgl --skip-build
+node test/repro/shadow-pipeline/validate-examples.js --webgl --skip-build --repeat --example=webgpu_shadowmap
+```
+
+These use `PUPPETEER_EXECUTABLE_PATH` when set. The example runner builds using
+upstream Rollup configuration and writes generated output locally. No generated
+renderer builds are included in either publication branch.
+
+The WebGL2 example runner intentionally requires exact pixels: the first run
+failed that strict assertion for three pixels, each differing by one channel
+value. Repeat controls found one differing pixel between unchanged patch captures
+and zero between stock and patch. The saved reports retain that qualification;
+the comparison threshold was not relaxed. All six examples rendered without
+browser/GPU errors in both backends.

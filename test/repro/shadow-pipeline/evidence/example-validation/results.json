@@ -1,0 +1,255 @@
+{
+  "revision": "1c4264a6392a5625bad4b0ad0559cfa24b73b2eb",
+  "backend": "WebGPU",
+  "cases": [
+    {
+      "example": "webgpu_shadowmap",
+      "mode": "stock",
+      "frames": 120,
+      "casters": 6,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.3999999761581421,
+      "renderSubmitP95Ms": 0.6999999284744263,
+      "pipelines": 8,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "example": "webgpu_shadowmap",
+      "mode": "patched",
+      "frames": 120,
+      "casters": 6,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.3999999761581421,
+      "renderSubmitP95Ms": 0.6000000238418579,
+      "pipelines": 8,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "example": "webgpu_shadowmap_vsm",
+      "mode": "stock",
+      "frames": 120,
+      "casters": 6,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.40000009536743164,
+      "renderSubmitP95Ms": 0.7999999523162842,
+      "pipelines": 5,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "example": "webgpu_shadowmap_vsm",
+      "mode": "patched",
+      "frames": 120,
+      "casters": 6,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.3999999761581421,
+      "renderSubmitP95Ms": 0.7000000476837158,
+      "pipelines": 5,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "example": "webgpu_shadowmap_pointlight",
+      "mode": "stock",
+      "frames": 120,
+      "casters": 2,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.5,
+      "renderSubmitP95Ms": 1,
+      "pipelines": 5,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "example": "webgpu_shadowmap_pointlight",
+      "mode": "patched",
+      "frames": 120,
+      "casters": 2,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.5,
+      "renderSubmitP95Ms": 0.8999999761581421,
+      "pipelines": 5,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "example": "webgpu_shadowmap_opacity",
+      "mode": "stock",
+      "frames": 120,
+      "casters": 2,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.2999999523162842,
+      "renderSubmitP95Ms": 0.40000009536743164,
+      "pipelines": 5,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "example": "webgpu_shadowmap_opacity",
+      "mode": "patched",
+      "frames": 120,
+      "casters": 2,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.2999999523162842,
+      "renderSubmitP95Ms": 0.3999999761581421,
+      "pipelines": 5,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "example": "webgpu_shadowmap_csm",
+      "mode": "stock",
+      "frames": 120,
+      "casters": 81,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.8000000715255737,
+      "renderSubmitP95Ms": 1.399999976158142,
+      "pipelines": 3,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "example": "webgpu_shadowmap_csm",
+      "mode": "patched",
+      "frames": 120,
+      "casters": 81,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.7999999523162842,
+      "renderSubmitP95Ms": 1,
+      "pipelines": 3,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "example": "webgpu_shadowmap_array",
+      "mode": "stock",
+      "frames": 120,
+      "casters": 8,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.5999999046325684,
+      "renderSubmitP95Ms": 0.8999999761581421,
+      "pipelines": 24,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "example": "webgpu_shadowmap_array",
+      "mode": "patched",
+      "frames": 120,
+      "casters": 8,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.6000000238418579,
+      "renderSubmitP95Ms": 0.8999999761581421,
+      "pipelines": 24,
+      "backend": "WebGPU",
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "comparisons": [
+    {
+      "example": "webgpu_shadowmap",
+      "differingPixels": 0,
+      "pixels": 576000
+    },
+    {
+      "example": "webgpu_shadowmap_vsm",
+      "differingPixels": 0,
+      "pixels": 576000
+    },
+    {
+      "example": "webgpu_shadowmap_pointlight",
+      "differingPixels": 0,
+      "pixels": 576000
+    },
+    {
+      "example": "webgpu_shadowmap_opacity",
+      "differingPixels": 0,
+      "pixels": 576000
+    },
+    {
+      "example": "webgpu_shadowmap_csm",
+      "differingPixels": 0,
+      "pixels": 576000
+    },
+    {
+      "example": "webgpu_shadowmap_array",
+      "differingPixels": 0,
+      "pixels": 576000
+    }
+  ],
+  "browser": "Edg/153.0.4234.48"
+}

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shadow example — exact color difference</title>
+<link rel="icon" href="data:,">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#111923;color:#e8edf4;font:15px/1.55 system-ui,sans-serif}main{max-width:1300px;margin:auto;padding:26px}h1{font-size:28px;margin:0 0 8px}p{color:#b9c9d8;margin:8px 0 16px}a{color:#86c7ef}label{display:inline-block;margin:0 20px 14px 0}select{font:inherit;padding:6px;background:#263a4e;color:white;border:1px solid #536a80;border-radius:5px}.layout{display:grid;grid-template-columns:minmax(280px,480px) 1fr;gap:28px;align-items:start}.crops{display:flex;gap:16px;align-items:start;overflow:auto}figure{margin:0}figcaption{font-size:14px;color:#b9c9d8;margin:0 0 9px}canvas{display:block;background:#05090e;max-width:100%;image-rendering:pixelated}#overview{width:100%;height:auto}.crops canvas{max-width:none}table{border-collapse:collapse;font-variant-numeric:tabular-nums;margin-top:16px}th,td{padding:6px 15px 6px 0;text-align:left;border-bottom:1px solid #2d3f50}.metric{color:#84dec8}#status{min-height:24px}.note{font-size:13px}details{margin-top:18px}@media(max-width:900px){.layout{grid-template-columns:1fr}.context{max-width:480px}}
+</style>
+<main>
+<h1>Three pixels, one color step</h1>
+<p>Saved WebGL2 captures of the real <code>webgpu_shadowmap</code> example. The initial stock/patch comparison differs in only 3 of 576,000 pixels. Each changes by one value in a single 8-bit RGB channel.</p>
+<label>Comparison <select id="comparison">
+<option value="original">Stock → Patch · initial capture</option>
+<option value="same-patch">Patch → same Patch · repeat control</option>
+<option value="repeat-pair">Stock → Patch · repeat capture</option>
+</select></label>
+<label>Pixel zoom <select id="zoom"><option value="4">4×</option><option value="8" selected>8×</option><option value="12">12×</option></select></label>
+<div id="status" class="metric" role="status">Loading original PNGs…</div>
+<p class="note">The crops preserve the original colors. Magenta marks every changed pixel at full intensity so you can locate it; it does not represent the size or color of the actual change.</p>
+<div class="layout">
+<section class="context">
+<figure><figcaption>Where to look · white rectangle outlines the enlarged area</figcaption><canvas id="overview" width="960" height="600" aria-label="Full shadow-map capture with the magnified area outlined"></canvas></figure>
+<p id="region" class="note"></p>
+<p><a id="left-source" href="webgpu_shadowmap-stock.png">Open original stock PNG</a> · <a id="right-source" href="webgpu_shadowmap-patched.png">Open original patch PNG</a></p>
+<table><thead><tr><th>Pixel (x, y)</th><th id="left-heading">Stock RGB</th><th id="right-heading">Patch RGB</th></tr></thead><tbody id="pixels"></tbody></table>
+</section>
+<section class="crops" aria-label="Magnified pixel comparison">
+<figure><figcaption id="left-caption">Stock · actual colors</figcaption><canvas id="left" aria-label="First capture magnified without smoothing"></canvas></figure>
+<figure><figcaption id="right-caption">Patch · actual colors</figcaption><canvas id="right" aria-label="Second capture magnified without smoothing"></canvas></figure>
+<figure><figcaption>Changed pixels · highlighted</figcaption><canvas id="mask" aria-label="Exaggerated mask marking changed pixels in magenta"></canvas></figure>
+</section>
+</div>
+<details open><summary>What the repeat controls establish</summary><p>The repeat Stock → Patch pair was pixel-identical. Two captures of the same patched build differed in one pixel by one channel value. That supports render/capture variability; it does not establish the exact cause. The WebGPU example comparisons were pixel-identical.</p></details>
+<p><a href="../example-validation/index.html">Back to validation gallery</a> · <a href="results.json">Initial WebGL2 measurements</a> · <a href="../example-validation-webgl-repeat/results.json">Repeat controls</a></p>
+</main>
+<script type="module">
+const $ = id => document.getElementById(id);
+const cases = {
+ original: ['webgpu_shadowmap-stock.png', 'webgpu_shadowmap-patched.png', 'Stock', 'Patch'],
+ 'same-patch': ['../example-validation-webgl-repeat/webgpu_shadowmap-patched.png', '../example-validation-webgl-repeat/webgpu_shadowmap-patched-repeat.png', 'Patch A', 'Patch B'],
+ 'repeat-pair': ['../example-validation-webgl-repeat/webgpu_shadowmap-stock.png', '../example-validation-webgl-repeat/webgpu_shadowmap-patched.png', 'Stock repeat', 'Patch repeat']
+};
+const cache = new Map();
+const measurements = fetch('color-difference-data.json').then(response => { if (!response.ok) throw new Error('Cannot load PNG measurements.'); return response.json(); });
+async function load(src) {
+ if (!cache.has(src)) cache.set(src, (async () => {
+  const image = new Image(); image.src = src; await image.decode();
+  const canvas = document.createElement('canvas'); canvas.width = image.naturalWidth; canvas.height = image.naturalHeight;
+  const ctx = canvas.getContext('2d'); ctx.drawImage(image,0,0);
+  return {canvas};
+ })());
+ return cache.get(src);
+}
+let request = 0;
+async function show() {
+ const token = ++request;
+ const [leftURL,rightURL,leftName,rightName] = cases[$('comparison').value];
+ const [a,b,data] = await Promise.all([load(leftURL),load(rightURL),measurements]);
+ if (token !== request) return;
+ if (a.canvas.width !== b.canvas.width || a.canvas.height !== b.canvas.height) throw new Error('Capture dimensions differ.');
+ // Use byte-level PNG measurements; browser color conversion or privacy features can alter canvas readback.
+ const {changed,maxDelta}=data[$('comparison').value];
+ const bounds = changed.length ? changed : [{x:515,y:204},{x:508,y:247}];
+ const x=Math.max(0,Math.min(...bounds.map(p=>p.x))-6), y=Math.max(0,Math.min(...bounds.map(p=>p.y))-6);
+ const w=Math.min(a.canvas.width-x,Math.max(...bounds.map(p=>p.x))-x+7), h=Math.min(a.canvas.height-y,Math.max(...bounds.map(p=>p.y))-y+7);
+ const zoom=Number($('zoom').value);
+ for (const [id,source] of [['left',a.canvas],['right',b.canvas]]) {
+  const canvas=$(id); canvas.width=w*zoom;canvas.height=h*zoom;
+  const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(source,x,y,w,h,0,0,w*zoom,h*zoom);
+ }
+ const mask=$('mask');mask.width=w*zoom;mask.height=h*zoom;
+ const maskCtx=mask.getContext('2d');maskCtx.fillStyle='#05090e';maskCtx.fillRect(0,0,mask.width,mask.height);maskCtx.fillStyle='#ff39c8';
+ for(const p of changed) maskCtx.fillRect((p.x-x)*zoom,(p.y-y)*zoom,zoom,zoom);
+ const overview=$('overview').getContext('2d');overview.drawImage(a.canvas,0,0);overview.strokeStyle='#ffffff';overview.lineWidth=2;overview.strokeRect(x-2,y-2,w+4,h+4);
+ $('status').textContent=`${changed.length} changed pixel${changed.length===1?'':'s'} / ${a.canvas.width*a.canvas.height} · largest channel difference: ${maxDelta} / 255`;
+ $('region').textContent=`Enlarged area: x ${x}–${x+w-1}, y ${y}–${y+h-1}. Coordinates start at the top-left (0, 0).`;
+ $('left-caption').textContent=`${leftName} · actual colors`; $('right-caption').textContent=`${rightName} · actual colors`;
+ $('left-heading').textContent=`${leftName} RGB`;$('right-heading').textContent=`${rightName} RGB`;
+ $('pixels').replaceChildren();
+ for (const p of changed) {const row=$('pixels').insertRow(); for(const text of [`(${p.x}, ${p.y})`,p.a.join(', '),p.b.join(', ')]) row.insertCell().textContent=text;}
+ if(!changed.length) {const row=$('pixels').insertRow();const cell=row.insertCell();cell.colSpan=3;cell.textContent='No changed pixels.';}
+ $('left-source').href=leftURL;$('left-source').textContent=`Open original ${leftName} PNG`;
+ $('right-source').href=rightURL;$('right-source').textContent=`Open original ${rightName} PNG`;
+}
+function refresh(){show().catch(error=>{$('status').textContent=error.message;console.error(error);});}
+$('comparison').addEventListener('change',refresh);$('zoom').addEventListener('change',refresh);refresh();
+</script>
+</html>

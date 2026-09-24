@@ -1,0 +1,113 @@
+{
+  "revision": "1c4264a6392a5625bad4b0ad0559cfa24b73b2eb",
+  "backend": "WebGL2",
+  "cases": [
+    {
+      "example": "webgpu_shadowmap",
+      "mode": "stock",
+      "frames": 120,
+      "casters": 6,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.3999999761581421,
+      "renderSubmitP95Ms": 0.7999999523162842,
+      "pipelines": 8,
+      "backend": "WebGL2",
+      "errors": [],
+      "warnings": [
+        "THREE.TSL: \".toInspector()\" is only available with WebGPU."
+      ]
+    },
+    {
+      "example": "webgpu_shadowmap",
+      "mode": "stock-repeat",
+      "frames": 120,
+      "casters": 6,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.30000007152557373,
+      "renderSubmitP95Ms": 0.6999999284744263,
+      "pipelines": 8,
+      "backend": "WebGL2",
+      "errors": [],
+      "warnings": [
+        "THREE.TSL: \".toInspector()\" is only available with WebGPU."
+      ]
+    },
+    {
+      "example": "webgpu_shadowmap",
+      "mode": "patched",
+      "frames": 120,
+      "casters": 6,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.30000007152557373,
+      "renderSubmitP95Ms": 0.6000000238418579,
+      "pipelines": 8,
+      "backend": "WebGL2",
+      "errors": [],
+      "warnings": [
+        "THREE.TSL: \".toInspector()\" is only available with WebGPU."
+      ]
+    },
+    {
+      "example": "webgpu_shadowmap",
+      "mode": "patched-repeat",
+      "frames": 120,
+      "casters": 6,
+      "counts": {
+        "sync": 0,
+        "async": 0,
+        "shaders": 0
+      },
+      "gpuErrors": [],
+      "renderSubmitMedianMs": 0.5,
+      "renderSubmitP95Ms": 1,
+      "pipelines": 8,
+      "backend": "WebGL2",
+      "errors": [],
+      "warnings": [
+        "THREE.TSL: \".toInspector()\" is only available with WebGPU."
+      ]
+    }
+  ],
+  "comparisons": [
+    {
+      "example": "webgpu_shadowmap",
+      "left": "stock",
+      "right": "stock-repeat",
+      "differingPixels": 0,
+      "maxChannelDelta": 0,
+      "pixels": 576000
+    },
+    {
+      "example": "webgpu_shadowmap",
+      "left": "patched",
+      "right": "patched-repeat",
+      "differingPixels": 1,
+      "maxChannelDelta": 1,
+      "pixels": 576000
+    },
+    {
+      "example": "webgpu_shadowmap",
+      "left": "stock",
+      "right": "patched",
+      "differingPixels": 0,
+      "maxChannelDelta": 0,
+      "pixels": 576000
+    }
+  ],
+  "browser": "Edg/153.0.4234.48"
+}

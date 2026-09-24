@@ -79,6 +79,25 @@ function instrument( renderer ) {
 
 	} );
 
+	if ( renderer.backend.isWebGLBackend === true ) {
+
+		const gl = renderer.backend.gl;
+		wrap( gl, 'createProgram', original => function ( ...args ) {
+
+			counters[ shadowPass ? 'shadowSync' : 'other' ] ++;
+			return original.apply( this, args );
+
+		} );
+		wrap( gl, 'createShader', original => function ( ...args ) {
+
+			counters.shaders ++;
+			return original.apply( this, args );
+
+		} );
+		return { counters, errors, labels, restore() { for ( const undo of restore.reverse() ) undo(); } };
+
+	}
+
 	for ( const [ name, key ] of [[ 'createRenderPipeline', 'shadowSync' ], [ 'createRenderPipelineAsync', 'shadowAsync' ]] ) {
 
 		wrap( device, name, original => function ( descriptor ) {
@@ -146,13 +165,13 @@ function installSideKey( renderer ) {
 
 export async function createScene( profile ) {
 
-	const renderer = new THREE.WebGPURenderer( { antialias: true } );
+	const renderer = new THREE.WebGPURenderer( { antialias: true, forceWebGL: profile.forceWebGL === true } );
 	renderer.setPixelRatio( 1 );
 	renderer.setSize( viewport.clientWidth, viewport.clientHeight );
 	renderer.shadowMap.enabled = ! profile.off;
 	renderer.shadowMap.type = THREE.PCFShadowMap;
 	await renderer.init();
-	if ( renderer.backend.isWebGPUBackend !== true ) {
+	if ( profile.forceWebGL ? renderer.backend.isWebGLBackend !== true : renderer.backend.isWebGPUBackend !== true ) {
 
 		renderer.dispose();
 		throw new Error( 'WebGPU is required; a WebGL fallback cannot measure this issue.' );
