@@ -3821,9 +3821,6 @@ class Renderer {
 
 				}
 
-				// Keep shadow pipelines for different material sides cached independently.
-				if ( passId === null ) passId = `shadowSide${ overrideMaterial.side }`;
-
 				if ( colorNode !== null ) overrideMaterial.colorNode = colorNode;
 				if ( depthNode !== null ) overrideMaterial.depthNode = depthNode;
 				if ( positionNode !== null ) overrideMaterial.positionNode = positionNode;

@@ -41,7 +41,7 @@ if ( serve ) {
 			if ( message.type() === 'error' ) errors.push( message.text() );
 
 		} );
-		await page.goto( `${ url }?autorun=0`, { waitUntil: 'networkidle0' } );
+		await page.goto( `${ url }?autorun=0&renderer=${ expected === 'fixed' ? 'patched' : 'stock' }`, { waitUntil: 'networkidle0' } );
 		await page.waitForFunction( () => window.shadowRepro !== undefined );
 		const output = path.join( root, 'test/e2e/output-screenshots/shadow-pipeline' );
 		await mkdir( output, { recursive: true } );

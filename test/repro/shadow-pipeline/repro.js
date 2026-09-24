@@ -2,12 +2,14 @@ import * as THREE from 'three/webgpu';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+const parameters = new URLSearchParams( location.search );
+const rendererMode = parameters.get( 'renderer' ) === 'patched' ? 'patched' : 'stock';
 const profiles = {
-	mixed: { title: 'Mixed sides · stock', description: 'FrontSide + DoubleSide → BackSide + DoubleSide shadows. Affected source creates two shadow pipelines every frame.' },
+	mixed: { title: 'Mixed sides · no wrapper', description: `FrontSide + DoubleSide shadows. ${ rendererMode === 'stock' ? 'Stock upstream: expect two new shadow pipelines per frame.' : 'Patched renderer: expect zero new shadow pipelines after warm-up.' }` },
 	keyed: { title: 'Mixed sides · side-key workaround', keyed: true, description: 'Same materials and shadows. A local renderObject wrapper separates the shadow cache by effective side.' },
 	uniform: { title: 'Same sides · control', uniform: true, description: 'Both source materials use FrontSide. Expected: zero new pipelines after warm-up.' },
 	explicit: { title: 'Equal shadowSide · control', explicit: 'equal', description: 'Mixed visible sides, both shadowSide = BackSide. This changes shadow semantics; it is only a control.' },
-	'shadow-override': { title: 'Mixed shadowSide · stock', uniform: true, explicit: 'mixed', description: 'Both visible sides are FrontSide; explicit shadowSide values differ. Affected source still churns.' },
+	'shadow-override': { title: 'Mixed shadowSide · no wrapper', uniform: true, explicit: 'mixed', description: 'Both visible sides are FrontSide; explicit shadowSide values differ. Stock should churn; patched should stay quiet.' },
 	'shadow-override-keyed': { title: 'Mixed shadowSide · workaround', uniform: true, explicit: 'mixed', keyed: true, description: 'Checks that the wrapper honors explicit shadowSide, keeping its two shadow cache entries separate.' },
 	'off': { title: 'Shadows off · control', off: true, description: 'Same mixed-side mesh, shadows disabled. Expected: zero new pipelines after warm-up.' }
 };
@@ -26,6 +28,16 @@ for ( const [ id, profile ] of Object.entries( profiles ) ) {
 }
 
 $( 'revision' ).textContent = `r${ THREE.REVISION } source`;
+$( 'renderer' ).value = rendererMode;
+$( 'renderer' ).addEventListener( 'change', () => {
+
+	const url = new URL( location.href );
+	url.searchParams.set( 'renderer', $( 'renderer' ).value );
+	url.searchParams.set( 'profile', $( 'profile' ).value );
+	url.searchParams.delete( 'autorun' );
+	location.href = url.href;
+
+} );
 
 function instrument( renderer ) {
 
@@ -132,7 +144,7 @@ function installSideKey( renderer ) {
 
 }
 
-async function createScene( profile ) {
+export async function createScene( profile ) {
 
 	const renderer = new THREE.WebGPURenderer( { antialias: true } );
 	renderer.setPixelRatio( 1 );
@@ -205,7 +217,7 @@ async function createScene( profile ) {
 		renderer, scene, camera, probe, draw,
 		materials: materials.map( material => ( { side: material.side, shadowSide: material.shadowSide } ) ),
 		groups: geometry.groups,
-		dispose() {
+		async dispose() {
 
 			controls.dispose();
 			geometry.dispose();
@@ -214,7 +226,7 @@ async function createScene( profile ) {
 			for ( const material of materials ) material.dispose();
 			light.dispose();
 			probe.restore();
-			renderer.dispose();
+			await renderer.dispose();
 
 		}
 	};
@@ -240,7 +252,7 @@ async function measure( id ) {
 	$( 'description' ).textContent = profile.description;
 	$( 'status' ).dataset.state = '';
 	$( 'status' ).textContent = 'Creating a fresh renderer…';
-	current?.dispose();
+	await current?.dispose();
 	current = null;
 	current = await createScene( profile );
 	const { probe, renderer } = current;
@@ -272,7 +284,7 @@ async function measure( id ) {
 	await nextFrame();
 	const measured = Object.fromEntries( Object.keys( before ).map( key => [ key, probe.counters[ key ] - before[ key ] ] ) );
 	const result = {
-		id, revision: THREE.REVISION, backend: 'WebGPU', frames, warmupFrames, ...measured,
+		id, rendererMode, revision: THREE.REVISION, backend: 'WebGPU', frames, warmupFrames, ...measured,
 		shadowPerFrame: ( measured.shadowSync + measured.shadowAsync ) / frames,
 		perFrame, errors: [ ...probe.errors ], labels: [ ...probe.labels ],
 		materials: current.materials, groups: current.groups, keyed: profile.keyed === true,
@@ -363,4 +375,4 @@ $( 'run' ).addEventListener( 'click', () => run().catch( reportError ) );
 $( 'compare' ).addEventListener( 'click', () => compare().catch( reportError ) );
 window.shadowRepro = { run, compare, profiles: Object.keys( profiles ), lastResult: null };
 setBusy( false );
-if ( new URLSearchParams( location.search ).get( 'autorun' ) !== '0' ) run( 'mixed' ).catch( reportError );
+if ( parameters.get( 'autorun' ) !== '0' ) run( profiles[ parameters.get( 'profile' ) ] ? parameters.get( 'profile' ) : 'mixed' ).catch( reportError );

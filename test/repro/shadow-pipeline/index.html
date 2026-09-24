@@ -32,23 +32,19 @@
 			small { color: #95adc3; }
 			@media (max-width: 800px) { main { display: flex; flex-direction: column; } #viewport { position: relative; height: 60vh; } }
 		</style>
-		<script type="importmap">
-			{
-				"imports": {
-					"three": "../../../src/Three.WebGPU.js",
-					"three/webgpu": "../../../src/Three.WebGPU.js",
-					"three/tsl": "../../../src/Three.TSL.js",
-					"three/addons/": "../../../examples/jsm/"
-				}
-			}
-		</script>
+		<script src="./source-map.js"></script>
 	</head>
 	<body>
 		<main>
 			<aside>
-				<small>WEBGPU REGRESSION REPRO · <span id="revision"></span></small>
+				<small>STOCK / PATCHED COMPARISON · <span id="revision"></span></small>
 				<h1>Shadow pipeline churn</h1>
 				<p>One mesh, two geometry groups, one shadow-casting directional light. The scene stays still while actual WebGPU calls are counted.</p>
+				<label for="renderer">Patch</label>
+				<select id="renderer">
+					<option value="stock">Stock upstream</option>
+					<option value="patched">Patched (+3 lines)</option>
+				</select>
 				<label for="profile">Test case</label>
 				<select id="profile"></select>
 				<div class="buttons">
@@ -67,7 +63,7 @@
 					<dt>GPU errors</dt><dd id="errors">—</dd>
 				</dl>
 				<p><span class="legend">Orange: group 0</span><br><span class="cyan">Cyan: group 1</span><br>Drag the scene to orbit after a test.</p>
-				<small>Each case starts with a fresh renderer, warms up for 12 frames, measures 120 frames, then stops. Imports this checkout’s src/ directly. No build step.</small>
+				<small>Changing renderer source reloads the page. Both use the same upstream revision; only Renderer.js differs. Each case warms up for 12 frames, measures 120 frames, then stops.</small>
 				<table hidden id="comparison">
 					<thead><tr><th>Case</th><th>Shadow pipelines/frame</th></tr></thead>
 					<tbody id="results"></tbody>

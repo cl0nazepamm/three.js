@@ -30,8 +30,11 @@ node test/repro/shadow-pipeline/run.js --serve
 ```
 
 Open <http://127.0.0.1:8092/test/repro/shadow-pipeline/> in a WebGPU-capable browser.
-The page imports `src/` directly, so edits to `Renderer.js` take effect on reload;
-no build or max.js assets are needed. Set `PORT` to change the port.
+The local comparison page has a **Patch** dropdown above the cases.
+**Stock upstream** (default) imports the preserved `Renderer.stock.js` module;
+**Patched (+3 lines)** imports the edited `Renderer.js`. Switching reloads the
+page, keeping every other source module identical. No build or max.js assets
+are needed. Set `PORT` to change the port.
 
 The first case runs automatically. Use **Compare all** for the seven-case matrix.
 Each case creates a fresh renderer, renders 12 warm-up frames, measures 120 frames,
@@ -56,7 +59,7 @@ control deliberately changes shadow semantics and is not the proposed fix.
 
 ```powershell
 node test/repro/shadow-pipeline/run.js
-# After applying a real fix to the renderer:
+# Select the patched Renderer.js source:
 node test/repro/shadow-pipeline/run.js --expect=fixed
 ```
 
