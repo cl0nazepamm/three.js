@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>three.js — shadow pipeline churn</title>
+		<link rel="icon" href="data:,">
+		<style>
+			* { box-sizing: border-box; }
+			body { margin: 0; background: #111923; color: #e8edf4; font: 14px/1.5 system-ui, sans-serif; }
+			main { display: grid; grid-template-columns: 390px 1fr; min-height: 100vh; }
+			aside { padding: 26px; background: #172330; }
+			h1 { margin: 0 0 10px; font-size: 23px; line-height: 1.2; }
+			p { color: #b1c3d3; }
+			label, select { display: block; width: 100%; }
+			select, button { padding: 10px; color: #eef5ff; background: #263a4e; border: 1px solid #536a80; border-radius: 5px; font: inherit; }
+			select { margin: 6px 0 12px; }
+			button { cursor: pointer; }
+			button:disabled, select:disabled { opacity: .5; cursor: default; }
+			.buttons { display: flex; gap: 8px; }
+			dl { display: grid; grid-template-columns: 1fr auto; gap: 9px; }
+			dd { margin: 0; font-variant-numeric: tabular-nums; font-weight: 600; }
+			#status { padding: 12px; border-left: 3px solid #86c7ef; background: #203244; }
+			#status[data-state="churn"], #status[data-state="error"] { border-color: #ff977b; }
+			#status[data-state="quiet"] { border-color: #73dbba; }
+			#viewport { height: 100vh; position: sticky; top: 0; min-width: 0; }
+			canvas { display: block; width: 100%; height: 100%; }
+			.legend { color: #ffb274; } .cyan { color: #74cddd; }
+			table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 20px; }
+			th, td { text-align: left; padding: 6px 3px; border-bottom: 1px solid #364a5e; }
+			th:last-child, td:last-child { text-align: right; }
+			small { color: #95adc3; }
+			@media (max-width: 800px) { main { display: flex; flex-direction: column; } #viewport { position: relative; height: 60vh; } }
+		</style>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../../../src/Three.WebGPU.js",
+					"three/webgpu": "../../../src/Three.WebGPU.js",
+					"three/tsl": "../../../src/Three.TSL.js",
+					"three/addons/": "../../../examples/jsm/"
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<main>
+			<aside>
+				<small>WEBGPU REGRESSION REPRO · <span id="revision"></span></small>
+				<h1>Shadow pipeline churn</h1>
+				<p>One mesh, two geometry groups, one shadow-casting directional light. The scene stays still while actual WebGPU calls are counted.</p>
+				<label for="profile">Test case</label>
+				<select id="profile"></select>
+				<div class="buttons">
+					<button id="run" disabled>Run 120 frames</button>
+					<button id="compare" disabled>Compare all</button>
+				</div>
+				<p id="description"></p>
+				<p id="status" role="status">Initializing WebGPU…</p>
+				<dl>
+					<dt>Measured frames</dt><dd id="frames">—</dd>
+					<dt>Shadow pipelines / frame</dt><dd id="rate">—</dd>
+					<dt>Shadow pipelines (sync)</dt><dd id="shadowSync">—</dd>
+					<dt>Shadow pipelines (async)</dt><dd id="shadowAsync">—</dd>
+					<dt>Other pipelines</dt><dd id="other">—</dd>
+					<dt>New shader modules</dt><dd id="shaders">—</dd>
+					<dt>GPU errors</dt><dd id="errors">—</dd>
+				</dl>
+				<p><span class="legend">Orange: group 0</span><br><span class="cyan">Cyan: group 1</span><br>Drag the scene to orbit after a test.</p>
+				<small>Each case starts with a fresh renderer, warms up for 12 frames, measures 120 frames, then stops. Imports this checkout’s src/ directly. No build step.</small>
+				<table hidden id="comparison">
+					<thead><tr><th>Case</th><th>Shadow pipelines/frame</th></tr></thead>
+					<tbody id="results"></tbody>
+				</table>
+			</aside>
+			<div id="viewport"></div>
+		</main>
+		<script type="module" src="./repro.js"></script>
+	</body>
+</html>
